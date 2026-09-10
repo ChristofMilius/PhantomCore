@@ -2,12 +2,24 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import discord
 from discord.ext import commands
 
 from phantomcore.settings import Settings
+
+# LM Studio splices reasoning and the final answer into the raw stream content
+# with an internal separator: <reasoning>__LM_STUDIO_INTERNAL_LSEP_SYNTHETIC_REASONING_END_<tag>__<answer>
+_REASONING_SEP = re.compile(r"__LM_STUDIO_INTERNAL_LSEP_SYNTHETIC_REASONING_END_[\w-]+__")
+
+
+def strip_reasoning(raw: str) -> str:
+    match = _REASONING_SEP.search(raw)
+    if match:
+        return raw[match.end() :].strip()
+    return raw.strip()
 
 
 class LLMModule(commands.Cog, name="llm_module"):
@@ -60,7 +72,12 @@ class LLMModule(commands.Cog, name="llm_module"):
         try:
             if file_path.exists():
                 with open(file_path, "r", encoding="utf-8") as f:
-                    self.chat_history[user_id] = json.load(f)
+                    history = json.load(f)
+                self.chat_history[user_id] = [
+                    msg
+                    for msg in history
+                    if not _REASONING_SEP.search(msg.get("content", ""))
+                ]
             else:
                 self.chat_history[user_id] = [
                     {"role": "system", "content": self.settings.system_prompt}
@@ -109,7 +126,8 @@ class LLMModule(commands.Cog, name="llm_module"):
     def _respond(self, conversation: str) -> str:
         model = self._load_model()
         result = model.respond(conversation, config=self.settings.lmstudio_chat_config)
-        return result.content if hasattr(result, "content") else str(result)
+        raw = result.content if hasattr(result, "content") else str(result)
+        return strip_reasoning(raw)
 
     # --- message sending -----------------------------------------------------
 
