@@ -17,6 +17,10 @@ architecture and a local LLM chat module.
 - **Extension management** — load/unload/reload cogs at runtime and a
   `/helper` command that posts one embed per cog with load/unload/reload
   buttons into the status channel.
+- **StalkerPlayer** (`stalker_player`) — a music player panel driven by
+  buttons. Auto-boots a local [Lavalink] 4 server with the youtube plugin and
+  plays/pauses/skips/loops tracks, stalking a chosen user across voice
+  channels with optional claimable control.
 
 ## Setup
 
@@ -28,6 +32,18 @@ architecture and a local LLM chat module.
    with a join channel) is created automatically by the lobby cogs on first
    start.
 3. **Copy** `.env.example` to `.env` and fill in the values.
+
+## StalkerPlayer / Lavalink
+
+The music player needs a Lavalink server. The bot can boot its own:
+
+- Place `Lavalink.jar` (v4) into `lavalink/` — the bundled config
+  `lavalink/application.yml` enables the youtube plugin.
+- Provide a portable Java 17+ JRE at `lavalink/jre/bin/java.exe`, or point
+  `JAVA_PATH` at any Java 17+ `java.exe`.
+- Run `\stalker` in Discord; the panel posts into the configured channel.
+  Commands: `\stalker`, `\play <query>`, `\pause`, `\resume`, `\skip`,
+  `\stop`, `\join`, `\leave`, `\stalk @user`, `\unstalk`.
 
 ## Usage
 
@@ -52,9 +68,15 @@ The console script is registered in `pyproject.toml`; you can also use
 | `LMSTUDIO_HOST`     | no       | LM Studio endpoint, default `localhost:1234`   |
 | `LMSTUDIO_MODEL`    | no       | Model id on the LM Studio server               |
 | `SYSTEM_PROMPT`     | no       | System prompt used for LLM chat                |
+| `LAVALINK_HOST`     | no       | Lavalink endpoint, default `127.0.0.1:7867`    |
+| `LAVALINK_PASSWORD` | no       | Lavalink server password, default `changeme` |
+| `JAVA_PATH`         | no       | Path to a Java 17+ `java.exe` for Lavalink     |
+| `STALKER_CHANNEL`   | no       | Channel id for the music panel (default: the command channel) |
+| `CLAIM_TIME`        | no       | Seconds to wait before control can change hands, default `300` |
 
 ## License
 
 MIT
 
 [LM Studio]: https://lmstudio.ai
+[Lavalink]: https://github.com/lavalink-devs/Lavalink

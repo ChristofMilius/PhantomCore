@@ -7,3 +7,10 @@ discord.log
 dist/
 .idea/
 .playwright-mcp/
+
+# Lavalink runtime (binary jar + downloads + logs stay local)
+lavalink/Lavalink.jar
+lavalink/jre/
+lavalink/plugins/
+lavalink/logs/
+lavalink/Cache/

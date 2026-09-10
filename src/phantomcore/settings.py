@@ -32,6 +32,11 @@ def _env_list(name: str, default: list[str]) -> tuple[str, ...]:
     return tuple(item.strip() for item in raw.split(",") if item.strip())
 
 
+def _env_optional_int(name: str) -> int | None:
+    raw = os.getenv(name)
+    return int(raw) if raw else None
+
+
 @dataclass(frozen=True)
 class Settings:
     token: str
@@ -49,6 +54,12 @@ class Settings:
     lmstudio_model_config: dict[str, int | dict]
     system_prompt: str
 
+    lavalink_host: str
+    lavalink_password: str
+    lavalink_java: str
+    stalker_channel_id: int | None
+    claim_time: float
+
     @property
     def intents(self) -> discord.Intents:
         return discord.Intents.all()
@@ -60,6 +71,14 @@ class Settings:
     @property
     def chat_history_dir(self) -> Path:
         return self.data_dir / "chat_histories"
+
+    @property
+    def lavalink_dir(self) -> Path:
+        return PROJECT_ROOT / "lavalink"
+
+    @property
+    def lavalink_jar(self) -> Path:
+        return self.lavalink_dir / "Lavalink.jar"
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -79,6 +98,7 @@ class Settings:
                     "pull_commands",
                     "extension_helper",
                     "llm_module",
+                    "stalker_player",
                 ],
             ),
             data_dir=Path(os.getenv("DATA_DIR", DATA_DIR)),
@@ -99,6 +119,11 @@ class Settings:
                 "SYSTEM_PROMPT",
                 "You are the PhantomCore Discord bot. Be concise, witty, and helpful.",
             ),
+            lavalink_host=os.getenv("LAVALINK_HOST", "127.0.0.1:7867"),
+            lavalink_password=os.getenv("LAVALINK_PASSWORD", "changeme"),
+            lavalink_java=os.getenv("JAVA_PATH", ""),
+            stalker_channel_id=_env_optional_int("STALKER_CHANNEL"),
+            claim_time=float(os.getenv("CLAIM_TIME", "300")),
         )
 
 

@@ -12,6 +12,7 @@ dependencies = [
     "discord-py>=2.7.1",
     "lmstudio>=1.5.0",
     "python-dotenv>=1.2.3",
+    "wavelink>=3.5.2",
 ]
 
 [project.scripts]
