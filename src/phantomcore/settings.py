@@ -83,7 +83,7 @@ class Settings:
             ),
             data_dir=Path(os.getenv("DATA_DIR", DATA_DIR)),
             lmstudio_host=os.getenv("LMSTUDIO_HOST", "localhost:1234"),
-            lmstudio_model=os.getenv("LMSTUDIO_MODEL", "qwen/qwen3-coder-30b"),
+            lmstudio_model=os.getenv("LMSTUDIO_MODEL", "qwen/qwen3.8-27b"),
             lmstudio_chat_config={
                 "temperature": float(os.getenv("LMSTUDIO_TEMPERATURE", "1.0")),
                 "top_k": float(os.getenv("LMSTUDIO_TOP_K", "0.5")),
