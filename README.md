@@ -23,9 +23,10 @@ architecture and a local LLM chat module.
 1. **Create the bot** at https://discord.com/developers/applications and copy
    its token.
 2. **Configure** channels: create a `bot-section` category with a status
-   channel and a bot channel, and the lobby categories used by your lobby cog
-   (`dynamic_voice_lobby` + `dynamic_chat_lobby`, plus a "Voice Lobby
-   Template" voice channel).
+   channel and a bot channel. The lobby structure (`dynamic_voice_lobby` +
+   `dynamic_chat_lobby` categories and the "Voice Lobby Template" category
+   with a join channel) is created automatically by the lobby cogs on first
+   start.
 3. **Copy** `.env.example` to `.env` and fill in the values.
 
 ## Usage

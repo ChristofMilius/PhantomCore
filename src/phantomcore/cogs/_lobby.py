@@ -19,6 +19,7 @@ class LobbyManager(commands.Cog):
     VOICE_CATEGORY = ""
     CHAT_CATEGORY = ""
     TEMPLATE_CATEGORY = "Voice Lobby Template"
+    TEMPLATE_CHANNEL = "Join to create a lobby"
     VOICE_CHANNEL_PREFIX = ""
     CHAT_CHANNEL_PREFIX = ""
 
@@ -28,6 +29,40 @@ class LobbyManager(commands.Cog):
         self.video_state: list[int] = []
         self.stream_state: list[int] = []
         self.voice_state: list[int] = []
+        self._ensure_on_ready = True
+
+    # --- structure setup ------------------------------------------------------
+
+    async def cog_load(self) -> None:
+        if self.bot.is_ready():
+            await self._ensure_structure()
+            self._ensure_on_ready = False
+
+    @commands.Cog.listener()
+    async def on_ready(self) -> None:
+        if not self._ensure_on_ready:
+            return
+        self._ensure_on_ready = False
+        await self._ensure_structure()
+
+    async def _ensure_structure(self) -> None:
+        """Idempotently create the lobby categories and template channel."""
+        guild = self.bot.get_guild(self.bot.settings.guild_id)
+        if guild is None:
+            return
+
+        for name in (self.VOICE_CATEGORY, self.CHAT_CATEGORY):
+            if name and get(guild.categories, name=name) is None:
+                await guild.create_category(name)
+                print(f"Created category {name}")
+
+        template = get(guild.categories, name=self.TEMPLATE_CATEGORY)
+        if template is None:
+            template = await guild.create_category(self.TEMPLATE_CATEGORY)
+            print(f"Created category {self.TEMPLATE_CATEGORY}")
+        if template and not template.voice_channels:
+            await template.create_voice_channel(self.TEMPLATE_CHANNEL)
+            print(f"Created channel {self.TEMPLATE_CHANNEL}")
 
     # --- state helpers ------------------------------------------------------
 
