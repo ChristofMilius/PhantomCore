@@ -30,7 +30,6 @@ class PhantomBot(commands.Bot):
             description="-=PhantomCore=-",
             owner_id=settings.owner_id,
             intents=settings.intents,
-            help_command=None,
         )
 
     # --- lifecycle --------------------------------------------------------
