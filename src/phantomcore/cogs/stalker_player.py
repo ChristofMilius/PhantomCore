@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import shutil
 import socket
 import subprocess
 import time
@@ -430,6 +431,11 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
                     if (PROJECT_ROOT / "lavalink" / "jre" / "bin" / "java.exe").exists()
                     else "java"
                 )
+                if not shutil.which(java) and not os.path.exists(java):
+                    raise RuntimeError(
+                        f"Java executable not found: {java!r}. Set JAVA_PATH in .env to a "
+                        f"valid java.exe, or unset it to use the bundled JRE."
+                    )
                 if not LAVALINK_JAR.exists():
                     raise RuntimeError(f"Lavalink jar not found at {LAVALINK_JAR}")
                 settings.lavalink_dir.mkdir(parents=True, exist_ok=True)
@@ -730,13 +736,13 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
 
     @commands.hybrid_command(name="play", description="Search and enqueue a track")
     async def play(self, ctx: commands.Context, *, query: str) -> None:
+        if ctx.author.voice is None or ctx.author.voice.channel is None:
+            await ctx.send(f"{ctx.author.mention}, join a voice channel first!", ephemeral=True)
+            return
         await ctx.defer()
         session = self._get_or_create(ctx, ctx.channel)
         await self._ensure_lavalink()
         if session.player is None:
-            if ctx.author.voice is None or ctx.author.voice.channel is None:
-                await ctx.send(f"{ctx.author.mention}, join a voice channel first!", ephemeral=True)
-                return
             await self._join_voice(session, ctx.author)
         try:
             tracks = await wavelink.Playable.search(query, source=wavelink.TrackSource.YouTube)
