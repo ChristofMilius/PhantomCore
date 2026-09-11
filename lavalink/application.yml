@@ -6,7 +6,7 @@ server:
 
 lavalink:
   server:
-    password: "changeme"
+    password: "changeme" # placeholder only: LAVALINK_SERVER_PASSWORD env overrides this at spawn; never the real secret
     sources:
       youtube: false # provided by the youtube plugin below
       bandcamp: true

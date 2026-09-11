@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import socket
 import subprocess
 import time
@@ -444,6 +445,10 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
                     stdout=log,
                     stderr=subprocess.STDOUT,
                     creationflags=flags,
+                    env={
+                        **os.environ,
+                        "LAVALINK_SERVER_PASSWORD": settings.lavalink_password,
+                    },
                 )
 
             deadline = time.monotonic() + 45

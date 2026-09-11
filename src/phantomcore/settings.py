@@ -120,7 +120,7 @@ class Settings:
                 "You are the PhantomCore Discord bot. Be concise, witty, and helpful.",
             ),
             lavalink_host=os.getenv("LAVALINK_HOST", "127.0.0.1:7867"),
-            lavalink_password=os.getenv("LAVALINK_PASSWORD", "changeme"),
+            lavalink_password=_env("LAVALINK_PASSWORD"),
             lavalink_java=os.getenv("JAVA_PATH", ""),
             stalker_channel_id=_env_optional_int("STALKER_CHANNEL"),
             claim_time=float(os.getenv("CLAIM_TIME", "300")),

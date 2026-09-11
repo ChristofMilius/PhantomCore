@@ -69,7 +69,7 @@ The console script is registered in `pyproject.toml`; you can also use
 | `LMSTUDIO_MODEL`    | no       | Model id on the LM Studio server               |
 | `SYSTEM_PROMPT`     | no       | System prompt used for LLM chat                |
 | `LAVALINK_HOST`     | no       | Lavalink endpoint, default `127.0.0.1:7867`    |
-| `LAVALINK_PASSWORD` | no       | Lavalink server password, default `changeme` |
+| `LAVALINK_PASSWORD` | yes      | Lavalink server password (no default; injected into the booted server) |
 | `JAVA_PATH`         | no       | Path to a Java 17+ `java.exe` for Lavalink     |
 | `STALKER_CHANNEL`   | no       | Channel id for the music panel (default: the command channel) |
 | `CLAIM_TIME`        | no       | Seconds to wait before control can change hands, default `300` |
