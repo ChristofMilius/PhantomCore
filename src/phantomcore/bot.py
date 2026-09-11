@@ -7,6 +7,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
+from phantomcore.channel_config import ensure_channel_structure
 from phantomcore.extension_loader import (
     load_all_extensions,
     unload_all_extensions,
@@ -41,6 +42,7 @@ class PhantomBot(commands.Bot):
 
     async def on_ready(self) -> None:
         await self.tree.sync()
+        await ensure_channel_structure(self)
 
         status_channel = self.get_channel(self.settings.status_channel_id)
         bot_channel = self.get_channel(self.settings.bot_channel_id)

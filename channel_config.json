@@ -1,0 +1,41 @@
+{
+  "categories": [
+    {
+      "name": "bot-section",
+      "channels": [
+        {
+          "name": "bot_chatter",
+          "type": "text"
+        },
+        {
+          "name": "bot_status",
+          "type": "text"
+        },
+        {
+          "name": "hermes_agent",
+          "type": "text",
+          "admin_only": true
+        },
+        {
+          "name": "stalker_player",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "dynamic_voice_lobby"
+    },
+    {
+      "name": "dynamic_chat_lobby"
+    },
+    {
+      "name": "Voice Lobby Template",
+      "channels": [
+        {
+          "name": "Join to create a lobby",
+          "type": "voice"
+        }
+      ]
+    }
+  ]
+}

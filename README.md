@@ -14,6 +14,9 @@ architecture and a local LLM chat module.
   channel with accept/reject buttons.
 - **LLM chat** (`llm_module`) — @-mention the bot in #bot_channel to talk to a
   local [LM Studio] server. Per-user chat history is persisted to JSON.
+- **Hermes agent channel** — an admin-only `hermes_agent` text channel under
+  `bot-section`, reserved for exchanging hermes-agent context. Separate from
+  the LLM module; auto-created with the rest of the structure.
 - **Extension management** — load/unload/reload cogs at runtime and a
   `/helper` command that posts one embed per cog with load/unload/reload
   buttons into the status channel.
@@ -26,11 +29,15 @@ architecture and a local LLM chat module.
 
 1. **Create the bot** at https://discord.com/developers/applications and copy
    its token.
-2. **Configure** channels: create a `bot-section` category with a status
-   channel and a bot channel. The lobby structure (`dynamic_voice_lobby` +
-   `dynamic_chat_lobby` categories and the "Voice Lobby Template" category
-   with a join channel) is created automatically by the lobby cogs on first
-   start.
+2. **Configure** channels: the desired server structure lives in
+   `channel_config.json` (repo root) — a `bot-section` category with
+   `bot_chatter`, `bot_status`, `stalker_player` and the admin-only
+   `hermes_agent`, plus the lobby categories (`dynamic_voice_lobby`,
+   `dynamic_chat_lobby`, "Voice Lobby Template" with its join channel).
+   Everything in this file is auto-created on first start when missing; the
+   only manual step is copying the ids Discord assigns to `bot_chatter` and
+   `bot_status` into the corresponding `.env` entries (`BOT_CHATTER`,
+   `BOT_STATUS`), and `stalker_player` into `STALKER_CHANNEL`.
 3. **Copy** `.env.example` to `.env` and fill in the values.
 
 ## StalkerPlayer / Lavalink
@@ -62,8 +69,8 @@ The console script is registered in `pyproject.toml`; you can also use
 | `GUILD_ID`          | yes      | Server that the bot operates in                |
 | `OWNER_ID`          | yes      | Bot owner (for owner-only commands)            |
 | `BOT_ID`            | yes      | The bot's own user id                          |
-| `BOT_CHANNEL`       | yes      | Id of the bot chat channel (LM Studio + "Online" msg) |
-| `BOT_STATUS_CHANNEL`| yes      | Id of the extension status channel             |
+| `BOT_CHATTER`       | yes      | Id of the bot chat channel (LM Studio + "Online" msg); auto-created via `channel_config.json`, fill in the assigned id |
+| `BOT_STATUS`        | yes      | Id of the extension status channel; auto-created via `channel_config.json`, fill in the assigned id |
 | `EXTENSIONS`        | no       | Comma-separated cogs to load (default: all core cogs) |
 | `LMSTUDIO_HOST`     | no       | LM Studio endpoint, default `localhost:1234`   |
 | `LMSTUDIO_MODEL`    | no       | Model id on the LM Studio server               |
@@ -71,7 +78,7 @@ The console script is registered in `pyproject.toml`; you can also use
 | `LAVALINK_HOST`     | no       | Lavalink endpoint, default `127.0.0.1:7867`    |
 | `LAVALINK_PASSWORD` | yes      | Lavalink server password (no default; injected into the booted server) |
 | `JAVA_PATH`         | no       | Path to a Java 17+ `java.exe` for Lavalink     |
-| `STALKER_CHANNEL`   | no       | Channel id for the music panel (default: the command channel) |
+| `STALKER_CHANNEL`   | no       | Channel id for the music panel (default: the command channel); auto-created via `channel_config.json`, fill in the assigned id |
 | `CLAIM_TIME`        | no       | Seconds to wait before control can change hands, default `300` |
 
 ## License

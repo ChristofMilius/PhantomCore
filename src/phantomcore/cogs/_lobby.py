@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
+from phantomcore.channel_config import ensure_channel_structure
 from phantomcore.db import LobbiesDB
 
 
@@ -46,23 +47,8 @@ class LobbyManager(commands.Cog):
         await self._ensure_structure()
 
     async def _ensure_structure(self) -> None:
-        """Idempotently create the lobby categories and template channel."""
-        guild = self.bot.get_guild(self.bot.settings.guild_id)
-        if guild is None:
-            return
-
-        for name in (self.VOICE_CATEGORY, self.CHAT_CATEGORY):
-            if name and get(guild.categories, name=name) is None:
-                await guild.create_category(name)
-                print(f"Created category {name}")
-
-        template = get(guild.categories, name=self.TEMPLATE_CATEGORY)
-        if template is None:
-            template = await guild.create_category(self.TEMPLATE_CATEGORY)
-            print(f"Created category {self.TEMPLATE_CATEGORY}")
-        if template and not template.voice_channels:
-            await template.create_voice_channel(self.TEMPLATE_CHANNEL)
-            print(f"Created channel {self.TEMPLATE_CHANNEL}")
+        """Idempotently create the configured categories and template channel."""
+        await ensure_channel_structure(self.bot)
 
     # --- state helpers ------------------------------------------------------
 

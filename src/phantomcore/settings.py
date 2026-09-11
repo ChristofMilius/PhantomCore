@@ -87,8 +87,8 @@ class Settings:
             guild_id=_env_int("GUILD_ID"),
             owner_id=_env_int("OWNER_ID"),
             bot_id=_env_int("BOT_ID"),
-            bot_channel_id=_env_int("BOT_CHANNEL"),
-            status_channel_id=_env_int("BOT_STATUS_CHANNEL"),
+            bot_channel_id=_env_int("BOT_CHATTER"),
+            status_channel_id=_env_int("BOT_STATUS"),
             extensions=_env_list(
                 "EXTENSIONS",
                 [

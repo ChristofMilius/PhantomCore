@@ -11,6 +11,7 @@
 !.python-version
 !LICENSE
 !README.md
+!channel_config.json
 !pcore.cmd
 !pyproject.toml
 !uv.lock
