@@ -4,6 +4,7 @@ import asyncio
 import random
 import time
 
+import discord
 from discord.ext import commands
 from discord.utils import get
 
@@ -42,6 +43,7 @@ class PurgeCommands(commands.Cog, name="purge_commands"):
             await ctx.send(random_string)
         await ctx.send("Done flooding!", ephemeral=True)
 
+    # this command is meant to "tabula rasa"
     @commands.hybrid_command(
         description="purges channel history with args as length for review",
         qualified_name="purge_chat",
@@ -59,7 +61,11 @@ class PurgeCommands(commands.Cog, name="purge_commands"):
             return
 
         start = time.perf_counter()
-        messages = [m async for m in ctx.channel.history(limit=amount)]
+        messages = [
+            m
+            async for m in ctx.channel.history(limit=amount)
+            if m.type == discord.MessageType.default
+        ]
         n = len(messages)
 
         if n == 0:
@@ -72,7 +78,7 @@ class PurgeCommands(commands.Cog, name="purge_commands"):
 
         # individual deletes with a delay to avoid Discord rate limits
         for message in messages:
-            await ctx.channel.delete_messages([message])
+            await message.delete()
             await asyncio.sleep(0.8)
 
         end = time.perf_counter()
