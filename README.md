@@ -61,6 +61,18 @@ uv run phantomcore
 The console script is registered in `pyproject.toml`; you can also use
 `uv run python -m phantomcore`.
 
+## Dependencies & security
+
+Dependencies keep loose `>=` minimum constraints in `pyproject.toml` so pip
+resolution stays forward-compatible. All pinned versions are currently the
+latest release on PyPI and show no known CVEs at the pinned versions (checked
+against the OSV database). The only routine maintenance is to refresh the lock
+with
+
+```powershell
+uv lock && uv sync
+```
+
 ## Env vars
 
 | Variable            | Required | Description                                    |
