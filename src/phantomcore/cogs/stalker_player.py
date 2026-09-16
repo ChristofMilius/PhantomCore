@@ -746,7 +746,7 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
     # commands
     # ------------------------------------------------------------------
 
-    @commands.hybrid_command(name="stalker", aliases=["stalker_player"], description="Boot the StalkerPlayer panel")
+    @commands.hybrid_command(name="stalker_player", aliases=["stalker"], description="Boot the StalkerPlayer panel")
     async def stalker(self, ctx: commands.Context) -> None:
         await ctx.defer()
         channel = self._panel_channel(ctx)
