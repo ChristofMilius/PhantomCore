@@ -681,25 +681,27 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
         view.stop()
 
     async def _radio_pick(self, interaction: discord.Interaction, station: str, view: View) -> None:
+        async def reply(text: str) -> None:
+            if interaction.response.is_done():
+                await interaction.followup.send(text, ephemeral=True)
+            else:
+                await interaction.response.send_message(text, ephemeral=True)
+
         session = self.sessions.get(int(interaction.guild_id))
         if session is not None:
             try:
-                tracks = await wavelink.Playable.search(f"{RADIO_BASE}/{station}.m4a")
+                tracks = await wavelink.Playable.search(f"{RADIO_BASE}/{station}.mp3")
             except Exception as err:
-                message = f"Could not tune in to {station}: {err}"
-                if interaction.response.is_done():
-                    await interaction.followup.send(message, ephemeral=True)
-                else:
-                    await interaction.response.send_message(message, ephemeral=True)
+                await reply(f"Could not tune in to {station}: {err}")
                 view.stop()
                 return
-            if tracks:
-                first = tracks[0] if isinstance(tracks, list) else list(tracks)[0]
-                await self._enqueue(session, first)
-        if interaction.response.is_done():
-            await interaction.followup.send(f"tuned in to {station} FM", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"tuned in to {station} FM", ephemeral=True)
+            if not tracks:
+                await reply(f"Could not tune in to {station}: no stream loaded")
+                view.stop()
+                return
+            first = tracks[0] if isinstance(tracks, list) else list(tracks)[0]
+            await self._enqueue(session, first)
+        await reply(f"tuned in to {station} FM")
         view.stop()
 
     async def _toggle_pause(self, session: MusicSession) -> None:
