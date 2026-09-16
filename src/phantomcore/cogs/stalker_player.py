@@ -579,6 +579,9 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
                 pass
         session.panels.clear()
 
+    async def _purge_channel(self, channel: discord.TextChannel) -> None:
+        await channel.purge(limit=None)
+
     async def _sync(self, session: MusicSession) -> None:
         async with session.lock:
             embed = self._embed(session)
@@ -788,7 +791,12 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
 
         if ctx.author.voice:
             await self._join_voice(session, ctx.author)
-        await self._purge_panels(session)
+        if self.bot.settings.stalker_channel_id and ctx.channel.id == self.bot.settings.stalker_channel_id:
+            await self._purge_channel(channel)
+            session.message = None
+            session.panels.clear()
+        else:
+            await self._purge_panels(session)
         await self._sync(session)
         if ctx.channel.id != channel.id:
             await ctx.send(f"StalkerPlayer panel posted in {channel.mention}", ephemeral=True)
