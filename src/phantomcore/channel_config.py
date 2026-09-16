@@ -24,6 +24,11 @@ _DEFAULT_STRUCTURE = {
                 {"name": "hermes_agent", "type": "text", "admin_only": True},
             ],
         },
+        {
+            "name": "development",
+            "position": 1,
+            "channels": [{"name": "updates", "type": "text"}],
+        },
         {"name": "dynamic_voice_lobby", "channels": []},
         {"name": "dynamic_chat_lobby", "channels": []},
         {
@@ -45,6 +50,7 @@ class ChannelEntry:
 class CategoryConfig:
     name: str
     channels: tuple[ChannelEntry, ...] = ()
+    position: int | None = None
 
 
 @dataclass(frozen=True)
@@ -63,7 +69,13 @@ class ChannelConfig:
                 )
                 for channel in category.get("channels", [])
             )
-            categories.append(CategoryConfig(name=category["name"], channels=channels))
+            categories.append(
+                CategoryConfig(
+                    name=category["name"],
+                    channels=channels,
+                    position=category.get("position"),
+                )
+            )
         return cls(categories=tuple(categories))
 
     @classmethod
@@ -95,6 +107,8 @@ async def ensure_channel_structure(bot: commands.Bot) -> None:
             category = get(guild.categories, name=category_config.name)
             if category is None:
                 category = await guild.create_category(category_config.name)
+                if category_config.position is not None:
+                    await category.edit(position=category_config.position)
                 print(f"Created category {category_config.name}")
 
             for entry in category_config.channels:

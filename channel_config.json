@@ -23,6 +23,16 @@
       ]
     },
     {
+      "name": "development",
+      "position": 1,
+      "channels": [
+        {
+          "name": "updates",
+          "type": "text"
+        }
+      ]
+    },
+    {
       "name": "dynamic_voice_lobby"
     },
     {
