@@ -189,6 +189,7 @@ class PlayerPanel(View):
 
         self.button_search.disabled = not connected
         self.button_purge.disabled = not connected or queue_len == 0
+        self.button_radio.disabled = not connected
         self.button_back.disabled = not connected or not has_history
         self.button_toggle.disabled = not connected or not (playing or paused)
         self.button_toggle.label = "resume" if paused else "pause"
@@ -241,6 +242,15 @@ class PlayerPanel(View):
             player.queue.clear()
         await self._sync()
         await self._notice(interaction, "queue has been purged")
+
+    @discord.ui.button(label="radio", emoji="📻", row=0)
+    async def button_radio(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not self._owned(interaction):
+            await self._kick_out(interaction)
+            return
+        await interaction.response.defer()
+        picker = RadioSelectView(self.cog._radio_pick)
+        await interaction.followup.send("Pick a Nightride FM station:", view=picker, ephemeral=True)
 
     # -- row 1: navigation + transport ------------------------------------
 
