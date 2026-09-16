@@ -46,6 +46,10 @@ The music player needs a Lavalink server. The bot can boot its own:
 
 - Place `Lavalink.jar` (v4) into `lavalink/` — the bundled config
   `lavalink/application.yml` enables the youtube plugin.
+  **Use Lavalink 4.1.7 or newer.** 4.0.0 (bundled with the repo in the past)
+  predates Discord's current voice-server handling: tracks load and "play", but
+  no audio reaches the channel. The jar is gitignored (local-only); keep
+  4.1.7+ in `lavalink/Lavalink.jar`.
 - Provide a portable Java 17+ JRE at `lavalink/jre/bin/java.exe`, or point
   `JAVA_PATH` at any Java 17+ `java.exe`.
 - Run `\stalker` in Discord; the panel posts into the configured channel.
