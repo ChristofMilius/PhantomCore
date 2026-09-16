@@ -99,6 +99,7 @@ class Settings:
                     "extension_helper",
                     "llm_module",
                     "stalker_player",
+                    "commit_watcher",
                 ],
             ),
             data_dir=Path(os.getenv("DATA_DIR", DATA_DIR)),
