@@ -26,7 +26,8 @@ src/**/__pycache__/
 !lavalink/
 !lavalink/**
 lavalink/Lavalink.jar
+lavalink/*.jar.bak
+lavalink/*.jar.new
 lavalink/jre/
 lavalink/plugins/
 lavalink/logs/
-lavalink/Cache/

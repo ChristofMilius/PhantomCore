@@ -194,7 +194,7 @@ class PlayerPanel(View):
         self.button_toggle.disabled = not connected or not (playing or paused)
         self.button_toggle.label = "resume" if paused else "pause"
         self.button_toggle.emoji = "⏯️" if paused else "⏸️"
-        self.button_play.disabled = not connected or playing or not queue_len
+        self.button_play.disabled = not connected or playing or (not queue_len and not has_history)
         self.button_stop.disabled = not connected or not (playing or paused)
         self.button_forward.disabled = not connected or not (playing or paused or queue_len)
         self.button_loop_song.disabled = not connected or not has_track
@@ -393,6 +393,7 @@ class PlayerPanel(View):
             return
         await interaction.response.defer()
         await self.cog._leave_voice(self.session)
+        await self._sync()
 
     # -- helpers ----------------------------------------------------------
 
@@ -645,8 +646,12 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
             return False
         if player.playing:
             return True
+        history = player.queue.history
         if player.queue.is_empty:
-            return False
+            if history is None or len(history) == 0:
+                return False
+            await player.play(history[-1], volume=DEFAULT_VOLUME, paused=False, add_history=False)
+            return True
         try:
             track = player.queue.get()
         except wavelink.QueueEmpty:
@@ -700,7 +705,11 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
                 view.stop()
                 return
             first = tracks[0] if isinstance(tracks, list) else list(tracks)[0]
-            await self._enqueue(session, first)
+            if session.player is not None and session.player.connected:
+                await session.player.play(first, volume=DEFAULT_VOLUME, paused=False)
+            else:
+                await self._enqueue(session, first)
+            await self._sync(session)
         await reply(f"tuned in to {station} FM")
         view.stop()
 
@@ -720,9 +729,16 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
         player = session.player
         if player is None:
             return
-        if player.current is None and player.queue.is_empty:
+        history = player.queue.history
+        if player.current is None and player.queue.is_empty and (history is None or len(history) == 0):
             return
-        await player.skip(force=True)
+        try:
+            track = player.queue.get()
+        except wavelink.QueueEmpty:
+            if history is not None and len(history) > 0:
+                await player.play(history[-1], volume=DEFAULT_VOLUME, paused=False, add_history=False)
+            return
+        await player.play(track, volume=DEFAULT_VOLUME, paused=False)
 
     async def _previous(self, session: MusicSession) -> None:
         player = session.player
