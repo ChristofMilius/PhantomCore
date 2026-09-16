@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import traceback
 from datetime import datetime
+from pathlib import Path
 
 import discord
 from discord.ext import commands
@@ -17,8 +18,10 @@ from phantomcore.settings import Settings
 
 logger = logging.getLogger("discord")
 logger.setLevel(logging.DEBUG)
-if not logger.handlers:
-    handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
+    log_file = Path(__file__).resolve().parents[2] / "data" / "discord.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    handler = logging.FileHandler(filename=log_file, encoding="utf-8", mode="a")
     handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
     logger.addHandler(handler)
 
