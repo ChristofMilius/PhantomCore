@@ -18,6 +18,17 @@ from phantomcore.settings import PROJECT_ROOT
 LAVALINK_JAR = PROJECT_ROOT / "lavalink" / "Lavalink.jar"
 DEFAULT_VOLUME = 50
 
+RADIO_BASE = "https://stream.nightride.fm"
+RADIO_STATIONS = {
+    "nightride": "Synthwave / Retrowave / Outrun",
+    "chillsynth": "Chillsynth / Chillwave / Instrumental",
+    "datawave": "Glitchy Synthwave / IDM / Retro Computing",
+    "spacesynth": "Spacesynth / Space Disco / Vocoder Italo",
+    "darksynth": "Darksynth / Cyberpunk / Horror",
+    "horrorsynth": "Horrorsynth / Witch House",
+    "ebsm": "EBSM / Industrial / Clubbing",
+}
+
 
 def _node_up(host: str, port: int, timeout: float = 2.0) -> bool:
     try:
@@ -113,6 +124,24 @@ class SearchSelectView(View):
     async def _pick(self, interaction: discord.Interaction, select: discord.ui.Select) -> None:
         index = int(select.values[0])
         await self._callback(interaction, self._tracks[index], self)
+
+
+class RadioSelectView(View):
+    """Choose one of the Nightride FM stations to enqueue as a stream."""
+
+    def __init__(self, callback, timeout: float = 120.0):
+        super().__init__(timeout=timeout)
+        choices = [
+            discord.SelectOption(label=name.upper(), value=name, description=desc)
+            for name, desc in RADIO_STATIONS.items()
+        ]
+        select = discord.ui.Select(placeholder="Pick a station to tune in...", options=choices)
+        select.callback = lambda inter: self._pick(inter, select)
+        self.add_item(select)
+        self._callback = callback
+
+    async def _pick(self, interaction: discord.Interaction, select: discord.ui.Select) -> None:
+        await self._callback(interaction, select.values[0], self)
 
 
 class PlayerPanel(View):
@@ -641,6 +670,28 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
             await interaction.response.send_message(f"added: {track.title}", ephemeral=True)
         view.stop()
 
+    async def _radio_pick(self, interaction: discord.Interaction, station: str, view: View) -> None:
+        session = self.sessions.get(int(interaction.guild_id))
+        if session is not None:
+            try:
+                tracks = await wavelink.Playable.search(f"{RADIO_BASE}/{station}.m4a")
+            except Exception as err:
+                message = f"Could not tune in to {station}: {err}"
+                if interaction.response.is_done():
+                    await interaction.followup.send(message, ephemeral=True)
+                else:
+                    await interaction.response.send_message(message, ephemeral=True)
+                view.stop()
+                return
+            if tracks:
+                first = tracks[0] if isinstance(tracks, list) else list(tracks)[0]
+                await self._enqueue(session, first)
+        if interaction.response.is_done():
+            await interaction.followup.send(f"tuned in to {station} FM", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"tuned in to {station} FM", ephemeral=True)
+        view.stop()
+
     async def _toggle_pause(self, session: MusicSession) -> None:
         player = session.player
         if player is None:
@@ -758,6 +809,19 @@ class StalkerPlayer(commands.Cog, name="stalker_player"):
         else:
             await self._enqueue(session, tracks[0])
             await ctx.send(f"added: {tracks[0].title}")
+
+    @commands.hybrid_command(name="radio", description="Tune into a Nightride FM station")
+    async def radio(self, ctx: commands.Context) -> None:
+        if ctx.author.voice is None or ctx.author.voice.channel is None:
+            await ctx.send(f"{ctx.author.mention}, join a voice channel first!", ephemeral=True)
+            return
+        await ctx.defer()
+        session = self._get_or_create(ctx, ctx.channel)
+        await self._ensure_lavalink()
+        if session.player is None:
+            await self._join_voice(session, ctx.author)
+        picker = RadioSelectView(self._radio_pick)
+        await ctx.send("Pick a Nightride FM station:", view=picker)
 
     @commands.hybrid_command(name="pause", description="Pause the currently playing track")
     async def pause(self, ctx: commands.Context) -> None:
