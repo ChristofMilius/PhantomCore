@@ -47,10 +47,7 @@ set "TS=%TS: =%"
 set "STDOUT=%DATA%\bot.stdout_%TS%.log"
 set "STDERR=%DATA%\bot.stderr_%TS%.log"
 
-powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command ^
-  "$p='%PCORE%'; $wd='%~dp0'; $o='%STDOUT%'; $e='%STDERR%'; ^
-   Start-Process -FilePath $p -WorkingDirectory $wd -WindowStyle Hidden ^
-     -RedirectStandardOutput $o -RedirectStandardError $e"
+powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "$p='%PCORE%'; $wd='%~dp0'; $o='%STDOUT%'; $e='%STDERR%'; Start-Process -FilePath $p -WorkingDirectory $wd -WindowStyle Hidden -RedirectStandardOutput $o -RedirectStandardError $e"
 
 if errorlevel 1 (
     echo Failed to start PhantomCore.
@@ -68,8 +65,7 @@ if errorlevel 1 (
     echo   PhantomCore was not running.
 )
 echo Stopping Lavalink server...
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "Get-CimInstance Win32_Process ^| Where-Object { $_.Name -like 'java*' -and $_.CommandLine -like '*Lavalink.jar*' } ^| ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-CimInstance Win32_Process | Where-Object { $_.Name -like 'java*' -and $_.CommandLine -like '*Lavalink.jar*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }"
 echo Done.
 exit /b 0
 
