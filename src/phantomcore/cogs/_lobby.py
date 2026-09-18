@@ -114,13 +114,24 @@ class LobbyManager(commands.Cog):
                 break
 
         guild = after.channel.guild
+        server_default = discord.PermissionOverwrite(view_channel=False)
+        bot_access = discord.PermissionOverwrite(
+            read_messages=True, send_messages=True, read_message_history=True
+        )
         vc, tc = await asyncio.gather(
             guild.create_voice_channel(
                 f"{self.VOICE_CHANNEL_PREFIX}{num}",
                 category=category_voice,
                 user_limit=after.channel.user_limit,
             ),
-            guild.create_text_channel(f"{self.CHAT_CHANNEL_PREFIX}{num}", category=category_chat),
+            guild.create_text_channel(
+                f"{self.CHAT_CHANNEL_PREFIX}{num}",
+                category=category_chat,
+                overwrites={
+                    guild.default_role: server_default,
+                    guild.me: bot_access,
+                },
+            ),
         )
         role = await guild.create_role(name=f"{vc.id}")
 
