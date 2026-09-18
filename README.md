@@ -65,6 +65,23 @@ uv run phantomcore
 The console script is registered in `pyproject.toml`; you can also use
 `uv run python -m phantomcore`.
 
+### Launcher shim (`pcore.cmd`)
+
+`pcore.cmd` is a portable launcher that resolves the venv relative to its own
+location (`%~dp0`), so the repo can live or move anywhere. It runs the bot as
+a detached background process with no console window and manages its lifecycle:
+
+| Command              | Effect                                                            |
+| -------------------- | ----------------------------------------------------------------- |
+| `pcore` / `pcore start` | Start the bot hidden in the background; stdout/stderr land in `data\bot.stdout_HHMMSS.log` and `data\bot.stderr_HHMMSS.log` |
+| `pcore stop`         | Stop the bot and any Lavalink server it spawned                   |
+| `pcore status`       | Report whether the bot is running                                 |
+| `pcore logs`         | Print the most recent bot output log                             |
+
+A copy of the same shim is installed from a PATH-accessible `bin` folder; that
+copy hardcodes the project root instead of `%~dp0` (bin shims can't resolve
+their own location this way) but exposes the same command surface.
+
 ## Dependencies & security
 
 Dependencies keep loose `>=` minimum constraints in `pyproject.toml` so pip
