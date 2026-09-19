@@ -34,10 +34,18 @@ architecture and a local LLM chat module.
    `bot_chatter`, `bot_status`, `stalker_player` and the admin-only
    `hermes_agent`, plus the lobby categories (`dynamic_voice_lobby`,
    `dynamic_chat_lobby`, "Voice Lobby Template" with its join channel).
-   Everything in this file is auto-created on first start when missing; the
+   Everything in this file is auto-created when missing; the
    only manual step is copying the ids Discord assigns to `bot_chatter` and
    `bot_status` into the corresponding `.env` entries (`BOT_CHATTER`,
    `BOT_STATUS`), and `stalker_player` into `STALKER_CHANNEL`.
+
+   Auto-creation is re-checked on every boot (and each reconnect), so a
+   category or channel deleted while the bot was offline is restored
+   automatically, IDs included. Type is enforced too: if a channel exists
+   under a configured name but with the wrong kind (e.g. a text channel
+   where the config declares `voice`), it is not left in place to block the
+   intended channel — it is renamed to `<name>-archived-<HHMMSS>` (history
+   preserved) and the correct type is created fresh.
 3. **Copy** `.env.example` to `.env` and fill in the values.
 
 ## StalkerPlayer / Lavalink
