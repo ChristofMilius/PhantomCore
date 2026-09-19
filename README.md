@@ -67,9 +67,12 @@ The console script is registered in `pyproject.toml`; you can also use
 
 ### Launcher shim (`pcore.cmd`)
 
-`pcore.cmd` is a portable launcher that resolves the venv relative to its own
-location (`%~dp0`), so the repo can live or move anywhere. It runs the bot as
-a detached background process with no console window and manages its lifecycle:
+`pcore.cmd` is a single portable launcher that runs the bot as a detached
+background process with no console window and manages its lifecycle. It
+self-detects its install location: a copy living in `%USERPROFILE%\bin` (a
+PATH-accessible bin folder) resolves the project from a hardcoded root; a copy
+anywhere else uses `%~dp0`, so the repo can live or move anywhere. Either way
+the same file can simply be copied into a user's bin folder unmodified.
 
 | Command              | Effect                                                            |
 | -------------------- | ----------------------------------------------------------------- |
@@ -77,10 +80,6 @@ a detached background process with no console window and manages its lifecycle:
 | `pcore stop`         | Stop the bot and any Lavalink server it spawned                   |
 | `pcore status`       | Report whether the bot is running                                 |
 | `pcore logs`         | Print the most recent bot output log                             |
-
-A copy of the same shim is installed from a PATH-accessible `bin` folder; that
-copy hardcodes the project root instead of `%~dp0` (bin shims can't resolve
-their own location this way) but exposes the same command surface.
 
 ## Dependencies & security
 

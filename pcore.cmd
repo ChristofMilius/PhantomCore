@@ -8,19 +8,24 @@ REM  pcore stop       stop the bot (and the Lavalink server it spawned)
 REM  pcore status     report whether the bot is running
 REM  pcore logs       print the most recent bot output log
 REM
-REM  %~dp0 = drive+path of THIS script. Using it keeps this shim portable:
-REM  it resolves the venv relative to the script's own location, so the
-REM  project folder can live anywhere (or be moved) without editing this
-REM  file. The bot is launched via PowerShell Start-Process in ShellExecute
+REM  One file, two modes. If this script lives in "%USERPROFILE%\bin" it is
+REM  the installed PATH copy and resolves the project from a hardcoded root
+REM  (bin shims can't use %~dp0 meaningfully); anywhere else it uses %~dp0,
+REM  so the repo can be moved without editing anything. This keeps a single
+REM  file that can be copied into a user's bin folder unmodified.
+REM
+REM  The bot is launched via PowerShell Start-Process in ShellExecute
 REM  mode (no -Redirect flags), so it gets a fully detached hidden console
 REM  that never touches the caller's terminal; redirection to timestamped
 REM  files in data\ is done by the wrapping cmd /c.
 REM =====================================================================
 setlocal
-set "PCORE=%~dp0.venv\Scripts\phantomcore.exe"
-set "DATA=%~dp0data"
 set "PCORE_NAME=phantomcore.exe"
 set "ARG=%~1"
+
+if /i "%~dp0"=="%USERPROFILE%\bin\" (set "ROOT=I:\opencode_projects\PhantomCore\") else set "ROOT=%~dp0"
+set "PCORE=%ROOT%.venv\Scripts\phantomcore.exe"
+set "DATA=%ROOT%data"
 
 if "%ARG%"==""                 goto start
 if /i "%ARG%"=="start"         goto start
@@ -48,7 +53,7 @@ set "TS=%TS: =%"
 set "STDOUT=%DATA%\bot.stdout_%TS%.log"
 set "STDERR=%DATA%\bot.stderr_%TS%.log"
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath cmd -ArgumentList '/c %PCORE% > %STDOUT% 2> %STDERR%' -WorkingDirectory '%~dp0' -WindowStyle Hidden"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath cmd -ArgumentList '/c %PCORE% > %STDOUT% 2> %STDERR%' -WorkingDirectory '%ROOT%' -WindowStyle Hidden"
 
 if errorlevel 1 (
     echo Failed to start PhantomCore.
