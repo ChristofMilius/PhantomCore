@@ -9,10 +9,10 @@ REM  pcore status     report whether the bot is running
 REM  pcore logs       print the most recent bot output log
 REM
 REM  One file, two modes. If this script lives in "%USERPROFILE%\bin" it is
-REM  the installed PATH copy and resolves the project from a hardcoded root
-REM  (bin shims can't use %~dp0 meaningfully); anywhere else it uses %~dp0,
-REM  so the repo can be moved without editing anything. This keeps a single
-REM  file that can be copied into a user's bin folder unmodified.
+REM  the installed PATH copy and resolves the project from PHANTOMCORE_ROOT
+REM  below (a placeholder, set ONCE on install); anywhere else it uses %~dp0,
+REM  so the repo can be moved without editing anything. Only the bin install
+REM  needs that single-line edit; repo copies are untouched.
 REM
 REM  The bot is launched via PowerShell Start-Process in ShellExecute
 REM  mode (no -Redirect flags), so it gets a fully detached hidden console
@@ -22,8 +22,26 @@ REM =====================================================================
 setlocal
 set "PCORE_NAME=phantomcore.exe"
 set "ARG=%~1"
+set "MODE=standalone"
 
-if /i "%~dp0"=="%USERPROFILE%\bin\" (set "ROOT=I:\opencode_projects\PhantomCore\") else set "ROOT=%~dp0"
+REM  INSTALL COPY ONLY: if this file is copied into %USERPROFILE%\bin,
+REM  replace this placeholder with the real project root (single edit).
+set "PHANTOMCORE_ROOT=C:\path\to\PhantomCore"
+
+if /i "%~dp0"=="%USERPROFILE%\bin\" set "MODE=bin"
+
+if not "%MODE%"=="bin" goto :standalone_root
+if "%PHANTOMCORE_ROOT%"=="C:\path\to\PhantomCore" (
+    echo [pcore] bin copy: set PHANTOMCORE_ROOT to your project root in this file first.
+    exit /b 1
+)
+set "ROOT=%PHANTOMCORE_ROOT%\"
+goto :root_ready
+
+:standalone_root
+set "ROOT=%~dp0"
+
+:root_ready
 set "PCORE=%ROOT%.venv\Scripts\phantomcore.exe"
 set "DATA=%ROOT%data"
 

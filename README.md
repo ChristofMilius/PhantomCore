@@ -70,9 +70,11 @@ The console script is registered in `pyproject.toml`; you can also use
 `pcore.cmd` is a single portable launcher that runs the bot as a detached
 background process with no console window and manages its lifecycle. It
 self-detects its install location: a copy living in `%USERPROFILE%\bin` (a
-PATH-accessible bin folder) resolves the project from a hardcoded root; a copy
-anywhere else uses `%~dp0`, so the repo can live or move anywhere. Either way
-the same file can simply be copied into a user's bin folder unmodified.
+PATH-accessible bin folder) resolves the project from a `PHANTOMCORE_ROOT`
+placeholder near the top of the file — replace that one line with the real
+project root once, on install. A copy anywhere else uses `%~dp0`, so the repo
+can live or move anywhere and the same file can be copied into a bin folder
+unmodified apart from that single edit.
 
 | Command              | Effect                                                            |
 | -------------------- | ----------------------------------------------------------------- |
