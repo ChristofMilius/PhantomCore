@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -13,6 +14,15 @@ from discord.utils import get
 from phantomcore.settings import PROJECT_ROOT
 
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "channel_config.json"
+
+_TYPE_TEXT = {discord.ChannelType.text, discord.ChannelType.news}
+_TYPE_VOICE = {discord.ChannelType.voice}
+
+
+def _type_matches(channel: discord.abc.GuildChannel, entry_type: str) -> bool:
+    if entry_type == "voice":
+        return channel.type in _TYPE_VOICE
+    return channel.type in _TYPE_TEXT
 
 _DEFAULT_STRUCTURE = {
     "categories": [
@@ -112,8 +122,16 @@ async def ensure_channel_structure(bot: commands.Bot) -> None:
                 print(f"Created category {category_config.name}")
 
             for entry in category_config.channels:
-                if get(category.channels, name=entry.name) is not None:
+                channel = get(category.channels, name=entry.name)
+                if channel is not None and _type_matches(channel, entry.type):
                     continue
+                if channel is not None:
+                    suffix = datetime.now().strftime("%H%M%S")
+                    print(
+                        f"Channel {entry.name} exists as {channel.type}, "
+                        f"archiving as {entry.name}-archived-{suffix}"
+                    )
+                    await channel.edit(name=f"{entry.name}-archived-{suffix}")
 
                 overwrites = None
                 if entry.admin_only:
