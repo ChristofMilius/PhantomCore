@@ -11,9 +11,10 @@ REM
 REM  %~dp0 = drive+path of THIS script. Using it keeps this shim portable:
 REM  it resolves the venv relative to the script's own location, so the
 REM  project folder can live anywhere (or be moved) without editing this
-REM  file. The bot is launched via PowerShell Start-Process so it runs
-REM  detached (no console window, survives the terminal closing) with
-REM  stdout/stderr redirected to timestamped files in data\.
+REM  file. The bot is launched via PowerShell Start-Process in ShellExecute
+REM  mode (no -Redirect flags), so it gets a fully detached hidden console
+REM  that never touches the caller's terminal; redirection to timestamped
+REM  files in data\ is done by the wrapping cmd /c.
 REM =====================================================================
 setlocal
 set "PCORE=%~dp0.venv\Scripts\phantomcore.exe"
@@ -47,7 +48,7 @@ set "TS=%TS: =%"
 set "STDOUT=%DATA%\bot.stdout_%TS%.log"
 set "STDERR=%DATA%\bot.stderr_%TS%.log"
 
-powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "$p='%PCORE%'; $wd='%~dp0'; $o='%STDOUT%'; $e='%STDERR%'; Start-Process -FilePath $p -WorkingDirectory $wd -WindowStyle Hidden -RedirectStandardOutput $o -RedirectStandardError $e"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath cmd -ArgumentList '/c %PCORE% > %STDOUT% 2> %STDERR%' -WorkingDirectory '%~dp0' -WindowStyle Hidden"
 
 if errorlevel 1 (
     echo Failed to start PhantomCore.
