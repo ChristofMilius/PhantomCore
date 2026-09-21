@@ -24,6 +24,10 @@ architecture and a local LLM chat module.
   buttons. Auto-boots a local [Lavalink] 4 server with the youtube plugin and
   plays/pauses/skips/loops tracks, stalking a chosen user across voice
   channels with optional claimable control.
+- **Commit watcher** (`commit_watcher`) — polls the `origin/main` remote and
+  posts each newly pushed commit to the `development` → `updates` channel as
+  an embed whose author line names the source repo (so a shared `#updates`
+  stays attributed across multiple remotes).
 
 ## Setup
 
