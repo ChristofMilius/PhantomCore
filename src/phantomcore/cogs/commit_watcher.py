@@ -27,10 +27,12 @@ class CommitWatcher(commands.Cog, name="commit_watcher"):
         self.bot = bot
         self._last_sha: str | None = None
         self._web_url = ""
+        self._repo_name = ""
 
     async def cog_load(self) -> None:
         self._read_state()
         self._web_url = await self._repo_web_url()
+        self._repo_name = self._repo_name_from_url(self._web_url)
         self.check_commits.start()
 
     async def cog_unload(self) -> None:
@@ -81,6 +83,10 @@ class CommitWatcher(commands.Cog, name="commit_watcher"):
             path = path[:-4]
         return "https://" + path.replace(":", "/")
 
+    @staticmethod
+    def _repo_name_from_url(web_url: str) -> str:
+        return web_url.rstrip("/").rsplit("/", 1)[-1] if web_url else ""
+
     def _commit_embed(
         self, sha: str, author: str, summary: str, tstamp: datetime | None
     ) -> discord.Embed:
@@ -89,6 +95,8 @@ class CommitWatcher(commands.Cog, name="commit_watcher"):
             colour=discord.Color.blurple(),
             url=f"{self._web_url}/commit/{sha}",
         )
+        if self._repo_name:
+            embed.set_author(name=self._repo_name)
         embed.set_footer(text=f"{author} · {sha[:7]}")
         if tstamp is not None:
             embed.timestamp = tstamp
