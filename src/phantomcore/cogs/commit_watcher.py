@@ -97,7 +97,7 @@ class CommitWatcher(commands.Cog, name="commit_watcher"):
         )
         if self._repo_name:
             embed.set_author(name=self._repo_name)
-        embed.set_footer(text=f"{author} · {sha[:7]}")
+        embed.set_footer(text=f"{self._web_url} · {sha[:7]}")
         if tstamp is not None:
             embed.timestamp = tstamp
         return embed
