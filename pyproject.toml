@@ -22,3 +22,11 @@ phantomcore = "phantomcore:main"
 [build-system]
 requires = ["uv_build>=0.12.10,<0.13.0"]
 build-backend = "uv_build"
+
+# Point pyright at the project venv. Without this it resolves third-party
+# imports against the system Python and reports every one of them as missing,
+# which buries the findings that matter.
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+include = ["src"]
